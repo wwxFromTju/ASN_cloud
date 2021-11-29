@@ -33,7 +33,7 @@ task_list = []
 # 还有任务可以跑
 while len(map_scale[FLAGS.map_type][FLAGS.map_size]) != 0:
     map_name = map_scale[FLAGS.map_type][FLAGS.map_size].pop(0)
-    task = subprocess.Popen(["CUDA_VISIBLE_DEVICES='{}' python src/main.py --config=qmix --env-config=sc2 with env_args.map_name={} agent='{}' asn_hidden_size=32 t_max=100".format(FLAGS.gpu_index, map_name, FLAGS.agent_type)], shell=True)
+    task = subprocess.Popen(["CUDA_VISIBLE_DEVICES='{}' python src/main.py --config=qmix --env-config=sc2 with env_args.map_name={} agent='{}' asn_hidden_size=32 t_max=2050000".format(FLAGS.gpu_index, map_name, FLAGS.agent_type)], shell=True)
     task_list.append(task)
     time.sleep(3)
 
