@@ -4,6 +4,7 @@ from .rnn_agent import RNNAgent
 
 # from .asn_agent import AsnAgent
 from .asn_rnn_agent import AsnRNNAgent
+from .asn_rnn_self_agent import AsnRNNSelfAgent
 # from .asn_diff_type_agent import AsnDiffAgent
 # from .asn_diff_type_rnn_agent import AsnDiffRnnAgent
 # from .asn_wo_share_diff_type_agent import AsnDiffWoShareAgent
@@ -18,6 +19,7 @@ REGISTRY["rnn"] = RNNAgent
 
 # modify add agent type
 REGISTRY['asn_rnn'] = AsnRNNAgent
+REGISTRY['asn_rnn_self'] = AsnRNNSelfAgent
 # REGISTRY['asn_diff'] = AsnDiffAgent
 # REGISTRY['asn_wo_share_diff'] = AsnDiffWoShareAgent
 # REGISTRY['asn_diff_rnn'] = AsnDiffRnnAgent
