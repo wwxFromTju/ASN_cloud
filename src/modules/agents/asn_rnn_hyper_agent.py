@@ -70,8 +70,8 @@ class AsnHyperAgent(nn.Module):
         enemies_h_hiddent_3 = [self.enemies_info_rnn3(enemy_info, enemy_h) for enemy_info, enemy_h in zip(enemies_hiddent_2, h_in_enemies)]
 
 
-        fc2_w_and_b_attack = [self.hyper_fc2_w_and_b_attack_actions(enemy_info) for enemy_info in enemies_feats]
-        attack_enemy_id_Q = [th.matmul(th.sum(h_env * enemy_info, dim=-1, keepdim=True), param[:-1]).squeeze(1) + param[-1] for enemy_info, param in zip(enemies_h_hiddent_3, fc2_w_and_b_attack)]
+        w_and_b_attack = [self.hyper_w_and_b_attack_actions(enemy_info) for enemy_info in enemies_feats]
+        attack_enemy_id_Q = [th.matmul(th.sum(h_env * enemy_info, dim=-1, keepdim=True), param[:-1]).squeeze(1) + param[-1] for enemy_info, param in zip(enemies_h_hiddent_3, w_and_b_attack)]
 
         q = th.cat([wo_action_fc_Q, *attack_enemy_id_Q], dim=-1)
         hidden_state = th.cat([h_env, *enemies_h_hiddent_3], dim=-1)
