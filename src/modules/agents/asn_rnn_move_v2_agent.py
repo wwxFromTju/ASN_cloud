@@ -10,9 +10,9 @@ def read_json(path):
     return data
 
 
-class AsnRNNSelfAgent(nn.Module):
+class AsnMoveV2SelfAgent(nn.Module):
     def __init__(self, input_shape, args):
-        super(AsnRNNSelfAgent, self).__init__()
+        super(AsnMoveV2SelfAgent, self).__init__()
         self.args = args
 
         print(args)
@@ -38,9 +38,12 @@ class AsnRNNSelfAgent(nn.Module):
         self.env_info_rnn3 = nn.GRUCell(args.asn_hidden_size, args.asn_hidden_size)
 
         # self network struct
-        self.self_feature_fc = nn.Linear(self.agent_info_size, args.asn_hidden_size)
+        self.self_feature_move_1 = nn.Linear(self.agent_info_size, args.asn_hidden_size)
+        self.self_feature_move_2 = nn.Linear(self.agent_info_size, args.asn_hidden_size)
+        self.self_feature_move_3 = nn.Linear(self.agent_info_size, args.asn_hidden_size)
+        self.self_feature_move_4 = nn.Linear(self.agent_info_size, args.asn_hidden_size)
 
-        self.wo_action_fc = nn.Linear(args.asn_hidden_size * 2, 6)
+        self.wo_action_fc = nn.Linear(args.asn_hidden_size, 2)
         
         self.enemies_info_fc1 = nn.Linear(self.enemy_feats_size, args.asn_hidden_size)
         self.enemies_info_fc2 = nn.Linear(args.asn_hidden_size, args.asn_hidden_size)
@@ -62,9 +65,16 @@ class AsnRNNSelfAgent(nn.Module):
         env_hidden_2 = self.env_info_fc2(env_hidden_1)
         h_env = self.env_info_rnn3(env_hidden_2, h_in_env)
 
-        h_self = self.self_feature_fc(self_feats)
+        move_1_hidden = self.self_feature_move_1(self_feats)
+        move_2_hidden = self.self_feature_move_2(self_feats)
+        move_3_hidden = self.self_feature_move_3(self_feats)
+        move_4_hidden = self.self_feature_move_4(self_feats)
 
-        wo_action_fc_Q = self.wo_action_fc(th.cat([h_env, h_self], dim=-1))
+        move_1_Q = th.sum(h_env * move_1_hidden, dim=-1, keepdim=True)
+        move_2_Q = th.sum(h_env * move_2_hidden, dim=-1, keepdim=True)
+        move_3_Q = th.sum(h_env * move_3_hidden, dim=-1, keepdim=True)
+        move_4_Q = th.sum(h_env * move_4_hidden, dim=-1, keepdim=True)
+        wo_action_fc_Q = self.wo_action_fc(h_env)
 
         enemies_hiddent_1 = [F.relu(self.enemies_info_fc1(enemy_info)) for enemy_info in enemies_feats]
         enemies_hiddent_2 = [self.enemies_info_fc2(enemy_info) for enemy_info in enemies_hiddent_1]
@@ -72,7 +82,7 @@ class AsnRNNSelfAgent(nn.Module):
 
         attack_enemy_id_Q = [th.sum(h_env * enemy_info, dim=-1, keepdim=True) for enemy_info in enemies_h_hiddent_3]
 
-        q = th.cat([wo_action_fc_Q, *attack_enemy_id_Q], dim=-1)
+        q = th.cat([wo_action_fc_Q, move_1_Q, move_2_Q, move_3_Q, move_4_Q, *attack_enemy_id_Q], dim=-1)
         hidden_state = th.cat([h_env, *enemies_h_hiddent_3], dim=-1)
 
         return q, hidden_state
